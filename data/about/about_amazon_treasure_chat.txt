@@ -2,8 +2,6 @@
 
 > Unlock the treasure trove of Amazon products with the simplicity of conversation.
 
-![Product Scout](data/about/product_scout.png)
-
 Amazon Treasures Chat enables users to effortlessly search and purchase products from Amazon’s extensive catalog using natural language. This innovative command-line application uses OpenAI’s AI Assistants, transforming text-based queries into meaningful product discoveries and transactions.
 
 [Assistants API Beta](https://platform.openai.com/docs/assistants/overview)
@@ -17,8 +15,6 @@ Amazon Treasures Chat reimagines shopping on Amazon, providing a command-line in
 Tailored for end users and developers, it offers seamless integration and a conversational UI for intuitive product searches, refining the online shopping experience. From initiating conversations about products to making purchase decisions, Amazon Treasures Chat prioritizes accuracy and user satisfaction, ensuring that only relevant results from the curated catalog are returned.
 
 The technology stack includes OpenAI API Assistants and Vector Store, emphasizing streamlined backend management for developers and robust security measures. With Amazon Treasures Chat, users unlock the full potential of Amazon’s vast catalog through the power of conversation.
-
-Its persona can be found [here](persona.md).
 
 ### Problem
 
@@ -73,54 +69,3 @@ End users who are looking to explore and track products within the Amazon produc
 #### Developers
 
 Developers focused on the backend operations, such as data preparation, uploading, AI Assistant creation, and integration testing, ensuring a smooth and accurate application performance.
-
-## Setup
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/DEV3L/amazon-treasure-chat
-cd amazon-treasure-chat
-```
-
-2. Copy the env.local file to a new file named .env and replace `OPENAI_API_KEY` with your actual OpenAI API key:
-
-```bash
-cp env.local .env
-```
-
-3. Setup a virtual environment with dependencies and activate it:
-
-```bash
-brew install hatch
-hatch env create
-hatch shell
-```
-
-1. Run the main script:
-
-```bash
-python run_chat.py
-```
-
-## Testing
-
-### Unit Tests
-
-```bash
-pytest
-```
-
-With coverage:
-
-```bash
-pytest --cov
-```
-
-With coverage for Coverage Gutters:
-
-```bash
-pytest --cov --cov-report lcov
-
-Command + Shift + P => Coverage Gutters: Watch
-```
