@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "amazon_treasure_chat"
+dynamic = ["version"]
+description = "Unlock the treasure trove of Amazon products with the simplicity of conversation."
+license = { file = "LICENSE" }
+readme = "README.md"
+authors = [{ name = "Justin Beall", email = "jus.beall@gmail.com" }]
+requires-python = ">=3.11"
+dependencies = ["loguru", "openai", "python-dotenv"]
+
+[tool.hatch.version]
+path = "setup.cfg"
+pattern = "version = (?P<version>\\S+)"
+
+[tool.hatch.build.targets.sdist]
+include = ["/src"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.hatch.envs.default]
+type = "virtual"
+path = ".venv"
+dependencies = ["pytest", "pytest-cov"]
+
+[tool.hatch.envs.default.scripts]
+chat = "python run_chat.py"
+test = "pytest --cache-clear --cov -m 'not integration'"
+test-integration = "pytest --cache-clear --cov"
+
+[tool.hatch.envs.hatch-static-analysis]
+config-path = "ruff_defaults.toml"
+
+[tool.ruff]
+extend = "ruff_defaults.toml"
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "parents"
+
+[tool.pytest.ini_options]
+markers = "integration: an integration test that hits external uncontrolled systems"
