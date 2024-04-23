@@ -1,0 +1,122 @@
+# Amazon Treasure Chat
+
+> Unlock the treasure trove of Amazon products with the simplicity of conversation.
+
+Amazon Treasures Chat enables users to effortlessly search and purchase products from Amazon’s extensive catalog using natural language. This innovative command-line application uses OpenAI’s AI Assistants, transforming text-based queries into meaningful product discoveries and transactions.
+
+[Assistants API Beta](https://platform.openai.com/docs/assistants/overview)
+
+[Amazon Products Dataset 2023 (1.4M Products)](https://www.kaggle.com/datasets/asaniczka/amazon-products-dataset-2023-1-4m-products/code)
+
+## Product Definition
+
+Amazon Treasures Chat reimagines shopping on Amazon, providing a command-line interface that allows users to interactively search and purchase over 1.4 million products using natural language. Leveraging OpenAI’s AI Assistants, it simplifies the product discovery process, offering personalized suggestions and enabling easy tracking of favorite items.
+
+Tailored for end users and developers, it offers seamless integration and a conversational UI for intuitive product searches, refining the online shopping experience. From initiating conversations about products to making purchase decisions, Amazon Treasures Chat prioritizes accuracy and user satisfaction, ensuring that only relevant results from the curated catalog are returned.
+
+The technology stack includes OpenAI API Assistants and Vector Store, emphasizing streamlined backend management for developers and robust security measures. With Amazon Treasures Chat, users unlock the full potential of Amazon’s vast catalog through the power of conversation.
+
+### Problem
+
+Users often find it challenging to navigate through Amazon’s vast product catalog due to its sheer size and complexity. Traditional search methods can be time-consuming and may not always yield relevant results, leading to a frustrating shopping experience. Moreover, developers face difficulties in leveraging structured data for conversational AI applications, owing to limitations in data types, sizes, and efficient retrieval mechanisms. Amazon Treasures Chat aims to address these issues by providing a conversational interface for easy product discovery and tracking, along with a streamlined process for developers to manage and deploy AI assistants effectively.
+
+### North Star
+
+The North Star for Amazon Treasures Chat is centered around two main metrics: user engagement and accuracy of the conversational AI. User engagement will be measured by metrics such as daily active users, session length, and the number of items tracked per user. This reflects the application’s ability to provide a compelling, useful service that attracts and retains users. The accuracy of the conversational AI, on the other hand, will be quantified through the relevance of search results, the successful execution of user commands (e.g., tracking items, refining searches), and user satisfaction ratings. Achieving high marks in these areas will indicate that Amazon Treasures Chat is fulfilling its promise to revolutionize the way users interact with Amazon’s product catalog, making every search a seamless, engaging experience.
+
+### Product Vision
+
+Our vision for Amazon Treasures Chat is to transform the way users interact with online shopping catalogs, starting with the Amazon Products Dataset 2023. By leveraging the latest in OpenAI’s AI Assistants and knowledge retrieval technologies, we aim to offer an intuitive, chat-based interface that allows users to easily discover, inquire about, and track products. This system will not only simplify the search process through conversational queries but also ensure accurate, up-to-date information from a vast database of 1.4 million products. Our goal is to make every user’s search feel like a personalized shopping experience, filled with discoveries and convenient tracking of favorite items.
+
+### Business Case
+
+The business case for Amazon Treasures Chat hinges on enhancing the online shopping experience and driving sales through personalized, conversational engagement. By simplifying access to a vast dataset of over 1.4 million products, the application aims to increase customer satisfaction, leading to higher conversion rates and repeat business. For developers, the platform offers a streamlined tool to deploy conversational AI, tapping into the growing demand for interactive shopping experiences. Financially, the application stands to generate revenue through partnerships, integrations with e-commerce platforms, and possibly a subscription model for advanced features. It also presents an opportunity to leverage valuable user data for insights and targeted marketing, while prioritizing user privacy and data security. The long-term vision includes expanding the product catalog and incorporating additional AI functionalities, such as predictive analytics, to further personalize the user experience.
+
+### Technology
+
+The core technology stack for Amazon Treasures Chat includes:
+
+- **OpenAI API Assistants**: For creating conversational AI that can interact with users, providing information, tracking products, and personal recommendations.
+
+- **Vector Store**: A newly released feature by OpenAI for simplifying the retrieval of information, essential for the proposed simplification of the RAG architecture.
+
+- **Python and OpenAI’s Python SDK**: For backend development, including data loading, normalization, and interaction with OpenAI’s services.
+
+- **Amazon Products Dataset 2023**: As the primary dataset, containing detailed information on 1.4M products for users to explore.
+  Cloud Services: For hosting, storage, and scalable computation needs, potentially using AWS given the Amazon-centric nature of the product.
+
+This selection emphasizes scalability, efficiency in data handling, and robust AI functionalities. As we proceed, flexibility in technology choices will be crucial to adapt to new advancements and user feedback.
+
+### Key Features
+
+- Conversational UI for intuitive product exploration.
+- Data normalization and preparation for the Amazon Products Dataset 2023.
+- Integration with OpenAI API Assistants and Vector Store for efficient search and retrieval.
+- Real-time tracking and update functionalities for user’s favorite items.
+- Personalized product recommendations based on user behavior.
+- Seamless backend management tools for developers to create, test, and manage the AI Assistant.
+- Robust security and privacy measures to protect user data.
+- Scalable architecture to accommodate expanding product catalogs and user base.
+- Comprehensive analytics dashboard for insights into user interactions and preferences.
+- Multi-platform support, ensuring access through various operating systems and devices.
+
+### Users
+
+### End User
+
+End users who are looking to explore and track products within the Amazon product catalog through a conversational interface, making shopping intuitive and personalized.
+
+#### Developers
+
+Developers focused on the backend operations, such as data preparation, uploading, AI Assistant creation, and integration testing, ensuring a smooth and accurate application performance.
+
+## Setup
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/DEV3L/amazon-treasure-chat
+cd amazon-treasure-chat
+```
+
+2. Copy the env.local file to a new file named .env and replace `OPENAI_API_KEY` with your actual OpenAI API key:
+
+```bash
+cp env.local .env
+```
+
+3. Setup a virtual environment with dependencies and activate it:
+
+```bash
+brew install hatch
+hatch env create
+hatch shell
+```
+
+1. Run the main script:
+
+```bash
+python run_chat.py
+```
+
+## Testing
+
+### Unit Tests
+
+```bash
+pytest
+```
+
+With coverage:
+
+```bash
+pytest --cov
+```
+
+With coverage for Coverage Gutters:
+
+```bash
+pytest --cov --cov-report lcov
+
+Command + Shift + P => Coverage Gutters: Watch
+```
