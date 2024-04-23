@@ -1,0 +1,43 @@
+[
+  { "type": "file_search" },
+  {
+    "type": "function",
+    "version": "1.0",
+    "function": {
+      "name": "RETRIEVE_PRODUCTS",
+      "description": "Call this function to return details about a user's selected products.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "description": "A list of 'asin' values from the uploaded retrieval context",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["ids"]
+      },
+      "responses": {
+        "200": {
+          "description": "Successful retrieval of product details",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": { "type": "object" }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Bad Request: Missing or invalid 'ids'"
+        },
+        "500": {
+          "description": "Internal Server Error"
+        }
+      }
+    }
+  }
+]
