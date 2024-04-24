@@ -1,21 +1,21 @@
 from datetime import datetime
 
 from src.prompts.prompt import (
-    get_amazon_assistant_functions,
-    get_amazon_assistant_prompt,
+    get_amazon_treasure_chat_functions,
+    get_amazon_treasure_chat_prompt,
 )
 
 
-def test_get_amazon_assistant_prompt():
+def test_get_amazon_treasure_chat_prompt():
     current_date = datetime.today().date().isoformat()
 
-    prompt = get_amazon_assistant_prompt()
+    prompt = get_amazon_treasure_chat_prompt()
     assert isinstance(prompt, str)
     assert current_date in prompt
 
 
-def test_get_amazon_assistant_functions():
-    functions = get_amazon_assistant_functions()
+def test_get_amazon_treasure_chat_functions():
+    functions = get_amazon_treasure_chat_functions()
 
     assert len(functions) == 2
 
