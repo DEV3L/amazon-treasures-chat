@@ -1,5 +1,6 @@
 from loguru import logger
 
+from src.clients.openai_api import OpenAIClient, build_openai_client
 from src.exporters.about.amazon_treasure_chat_exporter import AmazonTreasureChatExporter
 from src.exporters.about.persona_exporter import PersonaExporter
 from src.exporters.amazon.amazon_products_exporter import AmazonProductsExporter
@@ -21,6 +22,10 @@ def main():
     logger.info(f"Starting {ASSISTANT_NAME}")
 
     export_data()
+
+    client = OpenAIClient(build_openai_client())
+
+    logger.info(f"Created OpenAI client {client}")
 
 
 if __name__ == "__main__":

@@ -3,8 +3,8 @@ from io import BufferedReader
 
 from loguru import logger
 from openai import OpenAI
-from prompts.prompt import get_amazon_treasure_chat_functions
 
+from src.prompts.prompt import get_amazon_treasure_chat_functions
 from src.timer.timer import timer
 
 OPENAI_MODEL = "gpt-4-turbo"
