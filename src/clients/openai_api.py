@@ -87,6 +87,7 @@ class OpenAIClient:
     def vector_stores_create(self, name: str, file_ids: list[str]):
         vector_store = self.open_ai.beta.vector_stores.create(name=name, file_ids=file_ids)
 
+        # TODO: Add validation of files appropriately uploaded
         while self.vector_stores_retrieve(vector_store.id).status != "completed":
             logger.info("Waiting for vector store to be ready")
             time.sleep(5)

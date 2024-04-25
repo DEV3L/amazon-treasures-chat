@@ -2,7 +2,7 @@ import os
 
 import numpy
 from loguru import logger
-from pandas import concat, merge, read_csv
+from pandas import DataFrame, concat, merge, read_csv
 
 from src.exporters.exporter import (
     BIN_DIR,
@@ -11,6 +11,8 @@ from src.exporters.exporter import (
     create_dir,
     does_data_exist,
 )
+
+NUMBER_OF_FILES_TO_SPLIT = 25
 
 
 class AmazonProductsExporter:
@@ -24,27 +26,30 @@ class AmazonProductsExporter:
         self.write_data()
 
     def write_data(self):
-        data = self.load_data()
+        data = self.trim_data(self.load_data())
 
-        chunks = numpy.array_split(data, 10)
+        chunks = numpy.array_split(data, NUMBER_OF_FILES_TO_SPLIT)
         for i, chunk in enumerate(chunks):
             chunk.to_json(f"{self.get_file_path()}_part_{i}.json", orient="records")
 
         logger.info(f"Amazon data written to file: {self.get_file_path()}")
 
+    def trim_data(self, data: DataFrame):
+        return data.copy().drop(columns=["category_id", "id", "productURL"])
+
     def load_data(self):
         logger.debug("Loading Amazon data")
 
-        products_categories = self._join_data()
+        products_categories = self.join_data()
         return products_categories
 
-    def _join_data(self):
-        products = self._load_products()
+    def join_data(self):
+        products = self.load_products()
         categories = read_csv(f"{self.get_data_path()}/amazon_categories.csv")
 
         return merge(products, categories, left_on="category_id", right_on="id")
 
-    def _load_products(self):
+    def load_products(self):
         products = [read_csv(f"{self.get_data_path()}/amazon_products_{i}.csv") for i in range(1, 5)]
         return concat(products, ignore_index=True)
 

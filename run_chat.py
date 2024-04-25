@@ -1,11 +1,11 @@
 from loguru import logger
 
+from src.assistants.amazon_treasure_chat_assistant_service import ASSISTANT_NAME, AmazonTreasureChatAssistantService
 from src.clients.openai_api import OpenAIClient, build_openai_client
 from src.exporters.about.amazon_treasure_chat_exporter import AmazonTreasureChatExporter
 from src.exporters.about.persona_exporter import PersonaExporter
 from src.exporters.amazon.amazon_products_exporter import AmazonProductsExporter
 
-ASSISTANT_NAME = "Product Scout - Amazon Treasure Chat"
 SHOULD_DELETE_ASSISTANT = False
 
 
@@ -24,8 +24,15 @@ def main():
     export_data()
 
     client = OpenAIClient(build_openai_client())
+    service = AmazonTreasureChatAssistantService(client)
 
-    logger.info(f"Created OpenAI client {client}")
+    if SHOULD_DELETE_ASSISTANT:
+        logger.info("Removing existing assistant and category files")
+        service.delete_assistant()
+
+    assistant_id = service.get_assistant_id()
+
+    logger.info(f"Assistant ID: {assistant_id}")
 
 
 if __name__ == "__main__":
