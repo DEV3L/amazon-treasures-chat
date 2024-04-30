@@ -2,7 +2,7 @@ from loguru import logger
 
 from src.assistants.assistant_service import ASSISTANT_NAME, AssistantService
 from src.clients.openai_api import OpenAIClient, build_openai_client
-from src.exporters.about.amazon_treasure_chat_exporter import AmazonTreasureChatExporter
+from src.exporters.about.about_exporter import AboutExporter
 from src.exporters.about.persona_exporter import PersonaExporter
 from src.exporters.amazon.amazon_products_exporter import AmazonProductsExporter
 
@@ -13,7 +13,7 @@ START_MESSAGE = """Hello."""
 
 
 def export_data():
-    AmazonTreasureChatExporter().export()
+    AboutExporter().export()
     PersonaExporter().export()
     AmazonProductsExporter().export()
 
