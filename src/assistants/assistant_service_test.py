@@ -1,17 +1,17 @@
 from unittest import TestCase, mock
 from unittest.mock import MagicMock, mock_open, patch
 
-from src.assistants.amazon_treasure_chat_assistant_service import AmazonTreasureChatAssistantService
+from src.assistants.assistant_service import AssistantService
 
 
-class TestAmazonTreasureChatAssistantService(TestCase):
-    service: AmazonTreasureChatAssistantService
+class TestAssistantService(TestCase):
+    service: AssistantService
     assistant_name = "Test Assistant"
 
     def setUp(self):
         self.mock_client = MagicMock()
 
-        self.service = AmazonTreasureChatAssistantService(self.mock_client, self.assistant_name)
+        self.service = AssistantService(self.mock_client, self.assistant_name)
 
     def test_get_assistant_id_exists(self):
         mock_assistant = MagicMock(id="456")
@@ -28,7 +28,7 @@ class TestAmazonTreasureChatAssistantService(TestCase):
         self.mock_client.assistants_list.assert_called_once()
         self.mock_client.assistants_create.assert_not_called()
 
-    @patch("src.assistants.amazon_treasure_chat_assistant_service.get_amazon_treasure_chat_prompt")
+    @patch("src.assistants.assistant_service.get_prompt")
     def test_get_assistant_id_create(self, mock_get_prompt):
         self.mock_client.assistants_list = MagicMock(return_value=[])
         self.mock_client.assistants_create = MagicMock(return_value=MagicMock(id="789"))

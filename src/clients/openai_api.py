@@ -4,7 +4,7 @@ from io import BufferedReader
 from loguru import logger
 from openai import OpenAI
 
-from src.prompts.prompt import get_amazon_treasure_chat_functions
+from src.prompts.prompt import get_functions
 from src.timer.timer import timer
 
 OPENAI_MODEL = "gpt-4-turbo"
@@ -50,7 +50,7 @@ class OpenAIClient:
         vector_store_ids: list[str],
         tools: list[dict] = None,
     ):
-        _tools = tools or get_amazon_treasure_chat_functions()
+        _tools = tools or get_functions()
         return self.open_ai.beta.assistants.create(
             name=name,
             instructions=instructions,

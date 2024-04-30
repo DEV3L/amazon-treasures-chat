@@ -4,14 +4,14 @@ from loguru import logger
 
 from src.clients.openai_api import OpenAIClient
 from src.exporters.exporter import DATA_FILE_PREFIX
-from src.prompts.prompt import get_amazon_treasure_chat_prompt
+from src.prompts.prompt import get_prompt
 
 ASSISTANT_NAME = "Product Scout - Amazon Treasure Chat"
 
 ASSISTANT_DESCRIPTION = "Transforms structured knowledge into daily tech insights using AI"
 
 
-class AmazonTreasureChatAssistantService:
+class AssistantService:
     client: OpenAIClient
     assistant_name: str
 
@@ -33,7 +33,7 @@ class AmazonTreasureChatAssistantService:
     def _create_assistant(self):
         logger.info(f"Creating new assistant {self.assistant_name}")
 
-        instructions = get_amazon_treasure_chat_prompt()
+        instructions = get_prompt()
 
         return self.client.assistants_create(self.assistant_name, instructions, self.get_vector_store_ids()).id
 

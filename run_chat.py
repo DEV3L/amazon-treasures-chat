@@ -1,6 +1,6 @@
 from loguru import logger
 
-from src.assistants.amazon_treasure_chat_assistant_service import ASSISTANT_NAME, AmazonTreasureChatAssistantService
+from src.assistants.assistant_service import ASSISTANT_NAME, AssistantService
 from src.clients.openai_api import OpenAIClient, build_openai_client
 from src.exporters.about.amazon_treasure_chat_exporter import AmazonTreasureChatExporter
 from src.exporters.about.persona_exporter import PersonaExporter
@@ -24,7 +24,7 @@ def main():
     export_data()
 
     client = OpenAIClient(build_openai_client())
-    service = AmazonTreasureChatAssistantService(client)
+    service = AssistantService(client)
 
     if SHOULD_DELETE_ASSISTANT:
         logger.info("Removing existing assistant and category files")
