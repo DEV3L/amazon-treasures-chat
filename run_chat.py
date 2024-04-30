@@ -1,6 +1,7 @@
 from loguru import logger
 
 from src.assistants.assistant_service import ASSISTANT_NAME, AssistantService
+from src.chats.chat import Chat
 from src.clients.openai_api import OpenAIClient, build_openai_client
 from src.exporters.about.about_exporter import AboutExporter
 from src.exporters.about.persona_exporter import PersonaExporter
@@ -33,6 +34,21 @@ def main():
     assistant_id = service.get_assistant_id()
 
     logger.info(f"Assistant ID: {assistant_id}")
+
+    chat = Chat(client, assistant_id, start_message=START_MESSAGE)
+
+    start_response = chat.start()
+
+    print(f"\n{service.assistant_name}:\n{start_response}")
+
+    while True:
+        user_message = input("\nMessage: ")
+
+        if user_message == "exit":
+            break
+
+        chat_response = chat.send_user_message(user_message)
+        print(f"\n{service.assistant_name}:\n{chat_response}")
 
 
 if __name__ == "__main__":
