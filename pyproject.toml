@@ -31,6 +31,7 @@ dependencies = ["pytest", "pytest-cov"]
 chat = "python run_chat.py"
 build = "python run_build.py"
 test = "pytest --cache-clear --cov -m 'not integration'"
+repeat = "pytest -m integration -s"
 test-integration = "pytest --cache-clear --cov"
 
 [tool.hatch.envs.hatch-static-analysis]
