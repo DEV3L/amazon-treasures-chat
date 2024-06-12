@@ -1,0 +1,45 @@
+name: Repeat AI Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      openai_api_key:
+        description: "OpenAI API key"
+        required: true
+        default: ""
+      rounds:
+        description: "Number of Rounds"
+        type: number
+        required: true
+        default: 5
+
+jobs:
+  test:
+    name: "Repeat Integration tests"
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ github.event.inputs.openai_api_key }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+      - name: Install dependencies
+        run: |
+          python -m pip install hatch
+          hatch env create
+      - name: Unit tests
+        run: |
+          hatch run test
+      - name: Set number of runs
+        id: set-number-of-runs
+        run: |
+          ROUNDS=${{ inputs.rounds || 5 }}
+          echo "::notice::Starting $ROUNDS Runs: number_of_runs=$ROUNDS"
+          echo "number_of_runs=$ROUNDS" >> "$GITHUB_OUTPUT"
+      - name: Run Integration Tests Multiple Times
+        run: pytest -m integration -s
+        env:
+          TESTS_NUMBER_OF_CHOICES: ${{ steps.set-number-of-runs.outputs.number_of_runs }}
+          RUN_INTEGRATION: true
