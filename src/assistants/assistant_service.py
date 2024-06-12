@@ -8,7 +8,7 @@ from src.prompts.prompt import get_prompt
 
 ASSISTANT_NAME = "Product Scout - Amazon Treasure Chat"
 
-ASSISTANT_DESCRIPTION = "Transforms structured knowledge into daily tech insights using AI"
+ASSISTANT_DESCRIPTION = "Amazon Treasures Chat revolutionizes Amazon shopping with a command-line interface, enabling interactive, natural language searches and purchases from over 1.4 million products, powered by OpenAI's AI Assistants for personalized suggestions and easy favorite item tracking."
 
 
 class AssistantService:
@@ -43,7 +43,11 @@ class AssistantService:
     def _find_existing_vector_stores(self):
         vector_stores = self.client.vector_stores_list()
 
-        return [vector_store.id for vector_store in vector_stores if vector_store.name.startswith(DATA_FILE_PREFIX)]
+        return [
+            vector_store.id
+            for vector_store in vector_stores
+            if vector_store.name and vector_store.name.startswith(DATA_FILE_PREFIX)
+        ]
 
     def create_vector_stores(self):
         logger.info("Creating new vector stores")

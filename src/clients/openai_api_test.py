@@ -10,7 +10,7 @@ def test_build_openai_client(mock_openai):
 
     assert client is mock_openai.return_value
 
-    mock_openai.assert_called_once_with(timeout=45)
+    mock_openai.assert_called_once_with(timeout=90)
 
 
 class TestOpenAIClient(TestCase):
@@ -24,11 +24,9 @@ class TestOpenAIClient(TestCase):
         self.client = OpenAIClient(self.mock_open_ai)
 
     def test_threads_create(self):
-        messages = [{"content": "Hello", "role": "system"}]
+        self.client.threads_create()
 
-        self.client.threads_create(messages)
-
-        self.mock_open_ai.beta.threads.create.assert_called_once_with(messages=messages)
+        self.mock_open_ai.beta.threads.create.assert_called()
 
     def test_messages_list(self):
         thread_id = "thread_id"
@@ -52,10 +50,20 @@ class TestOpenAIClient(TestCase):
         thread_id = "thread_id"
         assistant_id = "assistant_id"
 
-        self.client.runs_create(thread_id, assistant_id)
+        self.client.runs_create(assistant_id, thread_id, False)
 
-        self.mock_open_ai.beta.threads.runs.create.assert_called_once_with(
-            thread_id=thread_id, assistant_id=assistant_id
+        self.mock_open_ai.beta.threads.runs.create_and_poll.assert_called_once_with(
+            thread_id=thread_id, assistant_id=assistant_id, tool_choice=None
+        )
+
+    def test_runs_create_with_tool_choice(self):
+        thread_id = "thread_id"
+        assistant_id = "assistant_id"
+
+        self.client.runs_create(assistant_id, thread_id, True)
+
+        self.mock_open_ai.beta.threads.runs.create_and_poll.assert_called_once_with(
+            thread_id=thread_id, assistant_id=assistant_id, tool_choice={"type": "file_search"}
         )
 
     def test_runs_retrieve(self):
@@ -82,7 +90,7 @@ class TestOpenAIClient(TestCase):
         self.mock_open_ai.beta.assistants.create.assert_called_once_with(
             name=name,
             instructions=instructions,
-            model="gpt-4-turbo",
+            model="gpt-4o",
             tool_resources={"file_search": {"vector_store_ids": vector_store_ids}},
             tools=tools,
         )
@@ -102,7 +110,7 @@ class TestOpenAIClient(TestCase):
 
     def test_files_create(self):
         file = MagicMock()
-        purpose = "purpose"
+        purpose = "assistants"
 
         self.client.files_create(file, purpose)
 

@@ -1,5 +1,6 @@
 import time
 from io import BufferedReader
+from typing import Literal
 
 from loguru import logger
 from openai import OpenAI
@@ -7,11 +8,11 @@ from openai import OpenAI
 from src.prompts.prompt import get_functions
 from src.timer.timer import timer
 
-OPENAI_MODEL = "gpt-4-turbo"
+OPENAI_MODEL = "gpt-4o"
 
 
 def build_openai_client():
-    return OpenAI(timeout=45)
+    return OpenAI(timeout=90)
 
 
 class OpenAIClient:
@@ -19,20 +20,28 @@ class OpenAIClient:
         self.open_ai = open_ai
 
     @timer("OpenAIClient.threads_create")
-    def threads_create(self, messages: list[dict]):
-        return self.open_ai.beta.threads.create(messages=messages)
+    def threads_create(self):
+        return self.open_ai.beta.threads.create()
 
     @timer("OpenAIClient.messages_list")
     def messages_list(self, thread_id: str):
         return self.open_ai.beta.threads.messages.list(thread_id)
 
     @timer("OpenAIClient.messages_create")
-    def messages_create(self, thread_id: str, content: str, role: str):
-        return self.open_ai.beta.threads.messages.create(thread_id=thread_id, content=content, role=role)
+    def messages_create(self, thread_id: str, content: str, role: Literal["user", "assistant"]):
+        return self.open_ai.beta.threads.messages.create(
+            thread_id=thread_id,
+            content=content,
+            role=role,
+        )
 
-    @timer("OpenAIClient.runs_create")
-    def runs_create(self, thread_id: str, assistant_id: str):
-        return self.open_ai.beta.threads.runs.create(thread_id=thread_id, assistant_id=assistant_id)
+    @timer("OpenAIClient.runs_create_and_poll")
+    def runs_create(self, assistant_id: str, thread_id: str, should_force_tool_call: bool):
+        return self.open_ai.beta.threads.runs.create_and_poll(
+            assistant_id=assistant_id,
+            thread_id=thread_id,
+            tool_choice={"type": "file_search"} if should_force_tool_call else None,
+        )
 
     @timer("OpenAIClient.runs_retrieve")
     def runs_retrieve(self, run_id: str, thread_id: str):
@@ -68,7 +77,7 @@ class OpenAIClient:
         return self.open_ai.files.list()
 
     @timer("OpenAIClient.files_create")
-    def files_create(self, file: BufferedReader, purpose: str):
+    def files_create(self, file: BufferedReader, purpose: Literal["assistants", "batch", "fine-tune"]):
         return self.open_ai.files.create(file=file, purpose=purpose)
 
     @timer("OpenAIClient.files_delete")
@@ -87,7 +96,6 @@ class OpenAIClient:
     def vector_stores_create(self, name: str, file_ids: list[str]):
         vector_store = self.open_ai.beta.vector_stores.create(name=name, file_ids=file_ids)
 
-        # TODO: Add validation of files appropriately uploaded
         while self.vector_stores_retrieve(vector_store.id).status != "completed":
             logger.info("Waiting for vector store to be ready")
             time.sleep(5)

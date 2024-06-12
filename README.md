@@ -2,7 +2,7 @@
 
 > Unlock the treasure trove of Amazon products with the simplicity of conversation.
 
-![Product Scout](data/about/product_scout.png)
+![Product Scout](data/files/product_scout.png)
 
 Amazon Treasures Chat enables users to effortlessly search and purchase products from Amazon’s extensive catalog using natural language. This innovative command-line application uses OpenAI’s AI Assistants, transforming text-based queries into meaningful product discoveries and transactions.
 

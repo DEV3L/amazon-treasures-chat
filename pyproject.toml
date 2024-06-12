@@ -29,6 +29,7 @@ dependencies = ["pytest", "pytest-cov"]
 
 [tool.hatch.envs.default.scripts]
 chat = "python run_chat.py"
+build = "python run_build.py"
 test = "pytest --cache-clear --cov -m 'not integration'"
 test-integration = "pytest --cache-clear --cov"
 

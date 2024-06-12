@@ -1,6 +1,6 @@
 # Persona
 
-![Product Scout](data/about/product_scout.png)
+![Product Scout](data/files/product_scout.png)
 
 ## Name
 
