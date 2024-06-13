@@ -45,6 +45,7 @@ def amazon_data():
 def test_chat_find_compatible_ram(chat: Chat, amazon_data_frame: DataFrame, execution_number: int):
     logger.info(f"Test chat find compatible ram execution number: {execution_number + 1}")
 
+    chat.thread_id = None
     chat.start()
 
     logger.info(f"Sending chat message: {TEST_MESSAGE}")
