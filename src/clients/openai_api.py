@@ -35,7 +35,7 @@ class OpenAIClient:
             role=role,
         )
 
-    @timer("OpenAIClient.runs_create_and_poll")
+    @timer("OpenAIClient.runs_create")
     def runs_create(self, assistant_id: str, thread_id: str, should_force_tool_call: bool):
         return self.open_ai.beta.threads.runs.create_and_poll(
             assistant_id=assistant_id,
@@ -76,6 +76,10 @@ class OpenAIClient:
     def files_list(self):
         return self.open_ai.files.list()
 
+    @timer("OpenAIClient.files_get")
+    def files_get(self, file_id: str):
+        return self.open_ai.files.retrieve(file_id)
+
     @timer("OpenAIClient.files_create")
     def files_create(self, file: BufferedReader, purpose: Literal["assistants", "batch", "fine-tune"]):
         return self.open_ai.files.create(file=file, purpose=purpose)
@@ -94,14 +98,44 @@ class OpenAIClient:
 
     @timer("OpenAIClient.vector_stores_create")
     def vector_stores_create(self, name: str, file_ids: list[str]):
-        vector_store = self.open_ai.beta.vector_stores.create(name=name, file_ids=file_ids)
+        created_vector_store = self.open_ai.beta.vector_stores.create(name=name, file_ids=file_ids)
+        vector_store_id = created_vector_store.id
 
-        while self.vector_stores_retrieve(vector_store.id).status != "completed":
+        while (vector_store := self.vector_stores_retrieve(vector_store_id)).status != "completed":
             logger.info("Waiting for vector store to be ready")
             time.sleep(5)
 
-        return vector_store.id
+        if vector_store.file_counts.failed > 0:
+            logger.warning(
+                f"Some files ({vector_store.file_counts.failed}) failed when uploaded to vector store ({vector_store_id})"
+            )
+
+        return vector_store_id
+
+    @timer("OpenAIClient.vector_stores_update")
+    def vector_stores_update(self, vector_store_id: str, file_ids: list[str]):
+        [self.open_ai.beta.vector_stores.files.create(vector_store_id, file_id=file_id) for file_id in file_ids]
+
+        while (vector_store := self.vector_stores_retrieve(vector_store_id)).status != "completed":
+            logger.info("Waiting for vector store to be ready")
+            time.sleep(5)
+
+        if vector_store.file_counts.failed > 0:
+            logger.warning(
+                f"Some files ({vector_store.file_counts.failed}) failed when uploaded to vector store ({vector_store_id})"
+            )
+
+        return vector_store_id
 
     @timer("OpenAIClient.vector_stores_delete")
     def vector_stores_delete(self, vector_store_id: str):
         self.open_ai.beta.vector_stores.delete(vector_store_id)
+
+    @timer("OpenAIClient.vector_stores_file_delete")
+    def vector_stores_file_delete(self, vector_store_id: str, file_id: str):
+        self.open_ai.beta.vector_stores.files.delete(file_id, vector_store_id=vector_store_id)
+        self.files_delete(file_id)
+
+    @timer("OpenAIClient.vector_stores_files")
+    def vector_stores_files(self, vector_store_id: str):
+        return self.open_ai.beta.vector_stores.files.list(vector_store_id, limit=100)

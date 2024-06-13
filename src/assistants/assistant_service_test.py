@@ -64,12 +64,49 @@ class TestAssistantService(TestCase):
         expected_vector_store_id = "vector_store_id"
         expected_file_ids = ["file1_id", "file2_id"]
         self.mock_client.vector_stores_create.return_value = expected_vector_store_id
+        self.mock_client.vector_stores_files.return_value = [
+            MagicMock(status="completed"),
+        ]
+
         self.service.get_retrieval_file_ids = lambda: expected_file_ids
 
         vector_store_ids = self.service.create_vector_stores()
 
         assert vector_store_ids == [expected_vector_store_id]
         self.mock_client.vector_stores_create.assert_called_with(mock.ANY, expected_file_ids)
+        self.mock_client.vector_stores_files.assert_called_with(expected_vector_store_id)
+
+    def test_create_vector_stores_with_failed_files(self):
+        expected_vector_store_id = "vector_store_id"
+        expected_file_ids = ["file1_id", "file2_id"]
+        self.mock_client.vector_stores_create.return_value = expected_vector_store_id
+        self.mock_client.vector_stores_files.side_effect = [
+            [MagicMock(status="failed", id="abc")],
+            [MagicMock(status="completed", id="def")],
+        ]
+        self.mock_client.files_get.return_value = MagicMock(filename="file_name")
+        self.service.get_retrieval_file_ids = lambda: expected_file_ids
+
+        mock_os_walk = [("root", None, ["file_name"])]
+
+        with patch("os.walk", return_value=mock_os_walk), patch("builtins.open", mock_open(read_data="data")):
+            vector_store_ids = self.service.create_vector_stores()
+
+        assert vector_store_ids == [expected_vector_store_id]
+        self.mock_client.vector_stores_file_delete.assert_called_with(expected_vector_store_id, "abc")
+        self.mock_client.vector_stores_create.assert_called_with(mock.ANY, expected_file_ids)
+        self.mock_client.vector_stores_files.assert_called_with(expected_vector_store_id)
+
+    def test_validate_vector_stores(self):
+        expected_vector_store_id = "vector_store_id"
+
+        self.mock_client.vector_stores_files.return_value = [
+            MagicMock(status="completed"),
+        ]
+
+        vector_store_id = self.service._validate_vector_stores(expected_vector_store_id)
+
+        assert vector_store_id == expected_vector_store_id
 
     def test_get_retrieval_file_ids_exists(self):
         self.mock_client.files_list = MagicMock(

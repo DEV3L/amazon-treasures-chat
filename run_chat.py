@@ -48,7 +48,9 @@ def main():
 
     while True:
         user_message = input("\nMessage: ")
-
+        if not user_message:
+            print("Invalid user message.")
+            continue
         if user_message == "exit":
             break
 

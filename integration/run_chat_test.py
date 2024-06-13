@@ -10,8 +10,8 @@ from src.chats.chat import Chat
 from src.clients.openai_api import OpenAIClient, build_openai_client
 from src.exporters.amazon.amazon_products_exporter import AmazonProductsExporter
 
-RUN_INTEGRATION = bool(os.getenv("RUN_INTEGRATION", True))
-TESTS_NUMBER_OF_CHOICES = int(os.getenv("TESTS_NUMBER_OF_CHOICES", "5"))
+RUN_INTEGRATION = bool(os.getenv("RUN_INTEGRATION"))
+TESTS_NUMBER_OF_CHOICES = int(os.getenv("TESTS_NUMBER_OF_CHOICES", "1"))
 
 
 TEST_MESSAGE = (

@@ -54,7 +54,37 @@ class AssistantService:
 
         retrieval_file_ids = self.get_retrieval_file_ids()
 
-        return [self.client.vector_stores_create(f"{DATA_FILE_PREFIX} vector store", retrieval_file_ids)]
+        return [
+            self._validate_vector_stores(
+                self.client.vector_stores_create(f"{DATA_FILE_PREFIX} vector store", retrieval_file_ids)
+            )
+        ]
+
+    def _validate_vector_stores(self, vector_store_id: str):
+        vector_store_files = self.client.vector_stores_files(vector_store_id)
+        failed_files = [file.id for file in vector_store_files if file.status == "failed"]
+
+        if not failed_files:
+            return vector_store_id
+
+        failed_retrieval_files = [self.client.files_get(file) for file in failed_files]
+        failed_retrieval_file_names = [self._get_file_name(file.filename) for file in failed_retrieval_files]
+        failed_file_paths = [
+            file_path
+            for file_path in self._get_file_paths()
+            if self._get_file_name(file_path) in failed_retrieval_file_names
+        ]
+
+        [self.client.vector_stores_file_delete(vector_store_id, file_id) for file_id in failed_files]
+
+        recreated_files = self._create_files(failed_file_paths)
+
+        self.client.vector_stores_update(vector_store_id, recreated_files)
+
+        return self._validate_vector_stores(vector_store_id)
+
+    def _get_file_name(self, file_path: str) -> str:
+        return os.path.basename(file_path)
 
     def get_retrieval_file_ids(self):
         return self._find_existing_retrieval_files() or self.create_retrieval_files()
@@ -71,7 +101,12 @@ class AssistantService:
         return self._create_files(file_paths)
 
     def _get_file_paths(self):
-        return [os.path.join(root, file) for (root, _, files) in os.walk("bin") for file in files]
+        return [
+            os.path.join(root, file)
+            for (root, _, files) in os.walk("bin")
+            for file in files
+            if not file.endswith(".DS_Store")
+        ]
 
     def _create_files(self, file_paths: list[str]):
         return [self._create_file(file_path) for file_path in file_paths]

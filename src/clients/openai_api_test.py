@@ -108,6 +108,14 @@ class TestOpenAIClient(TestCase):
         self.mock_open_ai.files.list.assert_called_once()
         assert files == self.mock_open_ai.files.list.return_value
 
+    def test_files_get(self):
+        file_id = "file_id"
+
+        file = self.client.files_get(file_id)
+
+        self.mock_open_ai.files.retrieve.assert_called_once_with(file_id)
+        assert file == self.mock_open_ai.files.retrieve.return_value
+
     def test_files_create(self):
         file = MagicMock()
         purpose = "assistants"
@@ -142,14 +150,48 @@ class TestOpenAIClient(TestCase):
         file_ids = ["file_id"]
         name = "vector_store_name"
         self.mock_open_ai.beta.vector_stores.retrieve.side_effect = [
-            MagicMock(status="pending"),
-            MagicMock(status="completed"),
+            MagicMock(status="pending", file_counts=MagicMock(failed=0)),
+            MagicMock(status="completed", file_counts=MagicMock(failed=0)),
+        ]
+
+        vector_store_id = self.client.vector_stores_create(name, file_ids)
+
+        self.mock_open_ai.beta.vector_stores.create.assert_called_once_with(name=name, file_ids=file_ids)
+        assert vector_store_id == self.mock_open_ai.beta.vector_stores.create.return_value.id
+        assert mock_time.sleep.call_count == 1
+
+    @patch("src.clients.openai_api.logger")
+    def test_vector_stores_create_with_failed_files(self, mock_logger):
+        file_ids = ["file_id"]
+        name = "vector_store_name"
+        self.mock_open_ai.beta.vector_stores.retrieve.side_effect = [
+            MagicMock(status="completed", file_counts=MagicMock(failed=1)),
         ]
 
         self.client.vector_stores_create(name, file_ids)
 
         self.mock_open_ai.beta.vector_stores.create.assert_called_once_with(name=name, file_ids=file_ids)
+        assert mock_logger.warning.call_count == 1
+
+    @patch("src.clients.openai_api.time")
+    @patch("src.clients.openai_api.logger")
+    def test_vector_stores_update(self, mock_logger, mock_time):
+        expected_vector_store_id = "vector_store_id"
+        file_ids = ["file_id"]
+
+        self.mock_open_ai.beta.vector_stores.retrieve.side_effect = [
+            MagicMock(status="pending", file_counts=MagicMock(failed=0)),
+            MagicMock(status="completed", file_counts=MagicMock(failed=1)),
+        ]
+
+        vector_store_id = self.client.vector_stores_update(expected_vector_store_id, file_ids)
+
+        self.mock_open_ai.beta.vector_stores.files.create.assert_called_once_with(vector_store_id, file_id=file_ids[0])
+
+        # self.mock_open_ai.beta.vector_stores.create.assert_called_once_with(name=name, file_ids=file_ids)
+        assert vector_store_id == expected_vector_store_id
         assert mock_time.sleep.call_count == 1
+        assert mock_logger.warning.call_count == 1
 
     def test_vector_stores_delete(self):
         vector_store_id = "vector_store_id"
@@ -157,3 +199,21 @@ class TestOpenAIClient(TestCase):
         self.client.vector_stores_delete(vector_store_id)
 
         self.mock_open_ai.beta.vector_stores.delete.assert_called_once_with(vector_store_id)
+
+    def test_vector_stores_file_delete(self):
+        vector_store_id = "vector_store_id"
+        file_id = "file_id"
+
+        self.client.vector_stores_file_delete(vector_store_id, file_id)
+        self.mock_open_ai.beta.vector_stores.files.delete.assert_called_once_with(
+            file_id, vector_store_id=vector_store_id
+        )
+        self.mock_open_ai.files.delete.assert_called_once_with(file_id)
+
+    def test_vector_stores_files(self):
+        vector_store_id = "vector_store_id"
+
+        vector_store_files = self.client.vector_stores_files(vector_store_id)
+
+        self.mock_open_ai.beta.vector_stores.files.list.assert_called_once_with(vector_store_id, limit=100)
+        assert vector_store_files == self.mock_open_ai.beta.vector_stores.files.list.return_value
