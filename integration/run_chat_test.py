@@ -47,17 +47,21 @@ def test_chat_find_compatible_ram(chat: Chat, amazon_data_frame: DataFrame, exec
 
     chat.start()
 
+    logger.info(f"Sending chat message: {TEST_MESSAGE}")
     start_response = chat.send_user_message(TEST_MESSAGE)
     logger.info(f"\n{start_response}")
 
     asins_from_response = extract_asin_from_response(start_response)
-    logger.info(asins_from_response)
+    logger.info(f"ASINs from response: {asins_from_response}")
 
     for asin in asins_from_response:
         assert asin in amazon_data_frame["asin"].values, f"ASIN {asin} not found in amazon_data_frame"
 
 
 def extract_asin_from_response(response: str) -> list[str]:
-    # Regular expression to match ASINs
-    asin_pattern = r"ASIN:\s*(\w+)"
-    return [line.split(" ")[-1].strip() for line in re.findall(asin_pattern, response)]
+    asin_lines = [line.strip().split(" ")[-1] for line in response.split("\n") if "ASIN" in line.upper()]
+
+    if not asin_lines:
+        assert False, f"No ASINs found in response: {response}"
+
+    return asin_lines
