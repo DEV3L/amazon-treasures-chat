@@ -1,5 +1,4 @@
 import os
-import re
 
 import pytest
 from loguru import logger
