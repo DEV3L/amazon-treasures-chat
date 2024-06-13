@@ -2,6 +2,7 @@ from unittest import TestCase, mock
 from unittest.mock import MagicMock, mock_open, patch
 
 from src.assistants.assistant_service import AssistantService
+from src.exporters.exporter import DATA_FILE_PREFIX
 
 
 class TestAssistantService(TestCase):
@@ -34,7 +35,7 @@ class TestAssistantService(TestCase):
         self.mock_client.assistants_create = MagicMock(return_value=MagicMock(id="789"))
         self.mock_client.vector_stores_list = MagicMock(
             return_value=[
-                MagicMock(filename="amazon_treasure_chat vector store", id="654"),
+                MagicMock(filename=f"{DATA_FILE_PREFIX} vector store", id="654"),
             ]
         )
         result = self.service.get_assistant_id()
@@ -50,7 +51,7 @@ class TestAssistantService(TestCase):
     def test_get_vector_store_ids_exists(self):
         self.mock_client.vector_stores_list = MagicMock(
             return_value=[
-                MagicMock(filename="amazon_treasure_chat vector store", id="654"),
+                MagicMock(filename=f"{DATA_FILE_PREFIX} vector store", id="654"),
             ]
         )
 
@@ -82,6 +83,7 @@ class TestAssistantService(TestCase):
         self.mock_client.vector_stores_create.return_value = expected_vector_store_id
         self.mock_client.vector_stores_files.side_effect = [
             [MagicMock(status="failed", id="abc")],
+            lambda: Exception("Failed to create vector store"),
             [MagicMock(status="completed", id="def")],
         ]
         self.mock_client.files_get.return_value = MagicMock(filename="file_name")
@@ -111,7 +113,7 @@ class TestAssistantService(TestCase):
     def test_get_retrieval_file_ids_exists(self):
         self.mock_client.files_list = MagicMock(
             return_value=[
-                MagicMock(filename="amazon_treasure_chat_products_part_0.json", id="456"),
+                MagicMock(filename=f"{DATA_FILE_PREFIX} blogs.json", id="456"),
             ]
         )
 

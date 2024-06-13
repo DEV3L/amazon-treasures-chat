@@ -61,27 +61,31 @@ class AssistantService:
         ]
 
     def _validate_vector_stores(self, vector_store_id: str):
-        vector_store_files = self.client.vector_stores_files(vector_store_id)
-        failed_files = [file.id for file in vector_store_files if file.status == "failed"]
+        try:
+            vector_store_files = self.client.vector_stores_files(vector_store_id)
+            failed_files = [file.id for file in vector_store_files if file.status == "failed"]
 
-        if not failed_files:
-            return vector_store_id
+            if not failed_files:
+                return vector_store_id
 
-        failed_retrieval_files = [self.client.files_get(file) for file in failed_files]
-        failed_retrieval_file_names = [self._get_file_name(file.filename) for file in failed_retrieval_files]
-        failed_file_paths = [
-            file_path
-            for file_path in self._get_file_paths()
-            if self._get_file_name(file_path) in failed_retrieval_file_names
-        ]
+            failed_retrieval_files = [self.client.files_get(file) for file in failed_files if file]
+            failed_retrieval_file_names = [self._get_file_name(file.filename) for file in failed_retrieval_files]
+            failed_file_paths = [
+                file_path
+                for file_path in self._get_file_paths()
+                if self._get_file_name(file_path) in failed_retrieval_file_names
+            ]
 
-        [self.client.vector_stores_file_delete(vector_store_id, file_id) for file_id in failed_files]
+            [self.client.vector_stores_file_delete(vector_store_id, file_id) for file_id in failed_files]
 
-        recreated_files = self._create_files(failed_file_paths)
+            recreated_files = self._create_files(failed_file_paths)
 
-        self.client.vector_stores_update(vector_store_id, recreated_files)
+            self.client.vector_stores_update(vector_store_id, recreated_files)
 
-        return self._validate_vector_stores(vector_store_id)
+            return self._validate_vector_stores(vector_store_id)
+        except Exception as e:
+            logger.error(f"Error validating vector store {vector_store_id}: {e}")
+            return self._validate_vector_stores(vector_store_id)
 
     def _get_file_name(self, file_path: str) -> str:
         return os.path.basename(file_path)

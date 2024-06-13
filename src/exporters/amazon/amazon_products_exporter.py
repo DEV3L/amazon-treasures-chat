@@ -12,7 +12,7 @@ from src.exporters.exporter import (
     does_data_exist,
 )
 
-NUMBER_OF_FILES_TO_SPLIT = 50
+NUMBER_OF_FILES_TO_SPLIT = 75
 
 
 class AmazonProductsExporter:

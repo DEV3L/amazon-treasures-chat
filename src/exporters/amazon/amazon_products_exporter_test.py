@@ -42,7 +42,7 @@ def test_write_data():
     with patch.object(DataFrame, "to_json") as mock_to_json:
         exporter.write_data()
 
-    assert mock_to_json.call_count == 50
+    assert mock_to_json.call_count == 75
     mock_to_json.assert_any_call("test_path_part_0.json", orient="records")
 
 
